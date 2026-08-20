@@ -29,6 +29,44 @@ app.set('trust proxy', 1);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src/views'));
 
+app.get('/healthz', (req, res) => {
+  res.json({ ok: true });
+});
+
+app.get('/readyz', async (req, res) => {
+  try {
+    const tables = await query(`
+      SELECT TABLE_NAME AS tableName
+      FROM information_schema.TABLES
+      WHERE TABLE_SCHEMA = DATABASE()
+        AND TABLE_NAME IN ('users', 'task_domains', 'tasks', 'clock_events', 'visit_logs', 'pay_ledger')
+      ORDER BY TABLE_NAME
+    `);
+    res.json({
+      ok: tables.length === 6,
+      db: {
+        host: process.env.DB_HOST || 'missing',
+        name: process.env.DB_NAME || 'missing',
+        user: process.env.DB_USER || 'missing'
+      },
+      tables: tables.map((table) => table.tableName)
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: false,
+      db: {
+        host: process.env.DB_HOST || 'missing',
+        name: process.env.DB_NAME || 'missing',
+        user: process.env.DB_USER || 'missing'
+      },
+      error: {
+        code: error.code || 'UNKNOWN',
+        message: error.message
+      }
+    });
+  }
+});
+
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -66,31 +104,15 @@ app.use('/competency', competencyRoutes);
 app.use('/pay-ledger', ledgerRoutes);
 app.use('/domains', domainRoutes);
 
-app.get('/healthz', (req, res) => {
-  res.json({ ok: true });
-});
-
-app.get('/readyz', async (req, res) => {
-  const tables = await query(`
-    SELECT TABLE_NAME AS tableName
-    FROM information_schema.TABLES
-    WHERE TABLE_SCHEMA = DATABASE()
-      AND TABLE_NAME IN ('users', 'task_domains', 'tasks', 'clock_events', 'visit_logs', 'pay_ledger')
-    ORDER BY TABLE_NAME
-  `);
-  res.json({
-    ok: tables.length === 6,
-    tables: tables.map((table) => table.tableName)
-  });
-});
-
 app.use((req, res) => {
   res.status(404).render('errors/404', { title: 'Not Found' });
 });
 
 app.use((err, req, res, next) => {
   console.error(err);
-  req.flash('error', err.message || 'Something went wrong.');
+  if (req.flash) {
+    req.flash('error', err.message || 'Something went wrong.');
+  }
   res.status(500).render('errors/500', { title: 'Server Error' });
 });
 
