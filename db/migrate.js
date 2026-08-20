@@ -9,8 +9,6 @@ const baseConfig = { ...dbConfig };
 delete baseConfig.database;
 
 const statements = [
-  `CREATE DATABASE IF NOT EXISTS \`${database}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`,
-  `USE \`${database}\``,
   `CREATE TABLE IF NOT EXISTS users (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(120) NOT NULL,
@@ -112,6 +110,15 @@ const statements = [
 async function migrate() {
   const connection = await mysql.createConnection(baseConfig);
   try {
+    try {
+      await connection.query(`CREATE DATABASE IF NOT EXISTS \`${database}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`);
+    } catch (error) {
+      if (!['ER_DBACCESS_DENIED_ERROR', 'ER_ACCESS_DENIED_ERROR'].includes(error.code)) {
+        throw error;
+      }
+      console.warn(`Skipping database creation for ${database}; using existing database.`);
+    }
+    await connection.query(`USE \`${database}\``);
     for (const statement of statements) {
       await connection.query(statement);
     }

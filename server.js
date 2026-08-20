@@ -64,6 +64,10 @@ app.use('/competency', competencyRoutes);
 app.use('/pay-ledger', ledgerRoutes);
 app.use('/domains', domainRoutes);
 
+app.get('/healthz', (req, res) => {
+  res.json({ ok: true });
+});
+
 app.use((req, res) => {
   res.status(404).render('errors/404', { title: 'Not Found' });
 });
@@ -74,13 +78,13 @@ app.use((err, req, res, next) => {
   res.status(500).render('errors/500', { title: 'Server Error' });
 });
 
-testConnection()
-  .then(() => {
-    app.listen(port, () => {
-      console.log(`Mission Property Tracker running at http://localhost:${port}`);
+app.listen(port, () => {
+  console.log(`Mission Property Tracker running at http://localhost:${port}`);
+  testConnection()
+    .then(() => {
+      console.log('Database connection verified.');
+    })
+    .catch((error) => {
+      console.error('Database connection failed:', error.message);
     });
-  })
-  .catch((error) => {
-    console.error('Database connection failed:', error.message);
-    process.exit(1);
   });
