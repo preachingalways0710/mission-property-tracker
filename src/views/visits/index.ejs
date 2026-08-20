@@ -1,0 +1,31 @@
+<%- include('../partials/header') %>
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Review work</p>
+    <h1>Visits</h1>
+  </div>
+  <% if (isWorker) { %><a class="button primary" href="/visits/new">Log Visit</a><% } %>
+</div>
+
+<section class="visit-list">
+  <% visits.forEach(visit => { %>
+    <article class="visit-card">
+      <div class="row">
+        <span><strong><%= visit.worker_name %></strong><small><%= helpers.formatDate(visit.visit_date) %> · <%= visit.hours_worked || 0 %> hrs</small></span>
+        <span class="pill <%= visit.status %>"><%= visit.status %></span>
+      </div>
+      <% if (visit.task_title) { %><p><strong>Task:</strong> <%= visit.task_title %></p><% } %>
+      <% if (visit.domains) { %><p><strong>Domains:</strong> <%= visit.domains %></p><% } %>
+      <p><%= visit.description %></p>
+      <% if (isAdmin && visit.status !== 'approved') { %>
+        <form class="form approve-form" method="post" action="/visits/<%= visit.id %>/approve">
+          <label>Approved Hours <input name="hours_worked" type="number" step="0.01" min="0" value="<%= visit.hours_worked || 0 %>"></label>
+          <label>Private Work-Ethic Note <textarea name="note" rows="2"></textarea></label>
+          <button class="button primary" type="submit">Approve</button>
+        </form>
+      <% } %>
+    </article>
+  <% }) %>
+  <% if (!visits.length) { %><p class="muted">No visits yet.</p><% } %>
+</section>
+<%- include('../partials/footer') %>

@@ -1,0 +1,65 @@
+<%- include('../partials/header') %>
+<div class="page-heading">
+  <div>
+    <p class="eyebrow"><%= currentUser.role %></p>
+    <h1>Dashboard</h1>
+  </div>
+  <a class="button primary" href="<%= isWorker ? '/visits/new' : '/tasks' %>"><%= isWorker ? 'Log Visit' : 'Manage Tasks' %></a>
+</div>
+
+<section class="metric-grid">
+  <article class="metric"><span>Open Clock</span><strong><%= openClock.length %></strong></article>
+  <article class="metric"><span>Recent Visits</span><strong><%= visits.length %></strong></article>
+  <article class="metric"><span>Ledger Entries</span><strong><%= ledger.length %></strong></article>
+</section>
+
+<section class="split">
+  <article>
+    <h2>Upcoming Tasks</h2>
+    <div class="list">
+      <% tasks.forEach(task => { %>
+        <a class="row" href="/tasks/<%= task.id %>/edit">
+          <span><strong><%= task.title %></strong><small><%= task.worker_name %> · <%= helpers.formatDate(task.due_date) %></small></span>
+          <span class="pill"><%= task.status.replace('_', ' ') %></span>
+        </a>
+      <% }) %>
+      <% if (!tasks.length) { %><p class="muted">No tasks yet.</p><% } %>
+    </div>
+  </article>
+  <article>
+    <h2>Recent Visits</h2>
+    <div class="list">
+      <% visits.forEach(visit => { %>
+        <div class="row">
+          <span><strong><%= visit.worker_name %></strong><small><%= helpers.formatDate(visit.visit_date) %> · <%= visit.hours_worked || 0 %> hrs</small></span>
+          <span class="pill <%= visit.status %>"><%= visit.status %></span>
+        </div>
+      <% }) %>
+      <% if (!visits.length) { %><p class="muted">No visits logged.</p><% } %>
+    </div>
+  </article>
+</section>
+
+<section class="split">
+  <article>
+    <h2>Competency Snapshot</h2>
+    <div class="score-list">
+      <% competencies.forEach(item => { %>
+        <div><span><%= item.domain_name %></span><strong><%= item.score ?? '—' %>/4</strong></div>
+      <% }) %>
+    </div>
+  </article>
+  <article>
+    <h2>Pay Status</h2>
+    <div class="list">
+      <% ledger.forEach(entry => { %>
+        <div class="row">
+          <span><strong><%= helpers.money(entry.amount_owed) %></strong><small><%= entry.worker_name %> · <%= helpers.formatDate(entry.period_start) %> to <%= helpers.formatDate(entry.period_end) %></small></span>
+          <span class="pill <%= entry.status %>"><%= entry.status %></span>
+        </div>
+      <% }) %>
+      <% if (!ledger.length) { %><p class="muted">No pay periods yet.</p><% } %>
+    </div>
+  </article>
+</section>
+<%- include('../partials/footer') %>

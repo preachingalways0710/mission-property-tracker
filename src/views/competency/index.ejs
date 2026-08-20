@@ -1,0 +1,46 @@
+<%- include('../partials/header') %>
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Skill growth</p>
+    <h1>Competency</h1>
+  </div>
+</div>
+
+<% if (isAdmin) { %>
+  <section class="toolbar-form">
+    <form class="form grid-form" method="get" action="/competency">
+      <label>Worker
+        <select name="worker_id" onchange="this.form.submit()">
+          <% workers.forEach(worker => { %>
+            <option value="<%= worker.id %>" <%= selectedWorkerId === worker.id ? 'selected' : '' %>><%= worker.name %></option>
+          <% }) %>
+        </select>
+      </label>
+    </form>
+    <form class="form grid-form" method="post" action="/competency">
+      <input type="hidden" name="user_id" value="<%= selectedWorkerId %>">
+      <label>Domain
+        <select name="domain_id">
+          <% domains.forEach(domain => { %><option value="<%= domain.id %>"><%= domain.name %></option><% }) %>
+        </select>
+      </label>
+      <label>Score
+        <select name="score">
+          <% [0,1,2,3,4].forEach(score => { %><option value="<%= score %>"><%= score %></option><% }) %>
+        </select>
+      </label>
+      <label class="wide">Notes <textarea name="notes" rows="3"></textarea></label>
+      <button class="button primary" type="submit">Record Score</button>
+    </form>
+  </section>
+<% } %>
+
+<section class="score-list large">
+  <% domains.forEach(domain => { %>
+    <div>
+      <span><%= domain.name %><small><%= domain.recorded_at ? `Updated ${helpers.formatDate(domain.recorded_at)}` : 'No score yet' %></small></span>
+      <strong><%= domain.score ?? '—' %>/4</strong>
+    </div>
+  <% }) %>
+</section>
+<%- include('../partials/footer') %>

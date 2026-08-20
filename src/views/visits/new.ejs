@@ -1,0 +1,28 @@
+<%- include('../partials/header') %>
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Work log</p>
+    <h1>Log Visit</h1>
+  </div>
+</div>
+
+<section class="toolbar-form">
+  <form class="form grid-form" method="post" action="/visits">
+    <label>Visit Date <input name="visit_date" type="date" required value="<%= date %>"></label>
+    <label>Hours <input name="hours_worked" type="number" step="0.01" min="0" value="<%= clockHours %>"></label>
+    <label>Related Task
+      <select name="task_id">
+        <option value="">None</option>
+        <% tasks.forEach(task => { %><option value="<%= task.id %>"><%= task.title %></option><% }) %>
+      </select>
+    </label>
+    <label class="wide">Domains
+      <select name="domain_ids" multiple size="7">
+        <% domains.forEach(domain => { %><option value="<%= domain.id %>"><%= domain.name %></option><% }) %>
+      </select>
+    </label>
+    <label class="wide">Description <textarea name="description" rows="5" required></textarea></label>
+    <button class="button primary" type="submit">Submit Visit</button>
+  </form>
+</section>
+<%- include('../partials/footer') %>

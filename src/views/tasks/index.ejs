@@ -1,0 +1,69 @@
+<%- include('../partials/header') %>
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Mission work</p>
+    <h1>Tasks</h1>
+  </div>
+  <a class="button" href="/calendar">Calendar</a>
+</div>
+
+<% if (isAdmin) { %>
+  <section class="toolbar-form">
+    <h2><%= task ? 'Edit Task' : 'New Task' %></h2>
+    <form class="form grid-form" method="post" action="<%= task ? `/tasks/${task.id}?_method=PUT` : '/tasks' %>">
+      <label>Title <input name="title" required value="<%= task?.title || '' %>"></label>
+      <label>Worker
+        <select name="assigned_to" required>
+          <% workers.forEach(worker => { %>
+            <option value="<%= worker.id %>" <%= task?.assigned_to === worker.id ? 'selected' : '' %>><%= worker.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label>Domain
+        <select name="domain_id">
+          <option value="">None</option>
+          <% domains.forEach(domain => { %>
+            <option value="<%= domain.id %>" <%= task?.domain_id === domain.id ? 'selected' : '' %>><%= domain.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label>Due Date <input name="due_date" type="date" value="<%= helpers.toDateInput(task?.due_date) || prefillDueDate %>"></label>
+      <label>Status
+        <select name="status">
+          <option value="todo" <%= task?.status === 'todo' ? 'selected' : '' %>>To Do</option>
+          <option value="in_progress" <%= task?.status === 'in_progress' ? 'selected' : '' %>>In Progress</option>
+          <option value="done" <%= task?.status === 'done' ? 'selected' : '' %>>Done</option>
+        </select>
+      </label>
+      <label class="wide">Description <textarea name="description" rows="3"><%= task?.description || '' %></textarea></label>
+      <button class="button primary" type="submit"><%= task ? 'Save Task' : 'Create Task' %></button>
+      <% if (task) { %><a class="button ghost" href="/tasks">Cancel</a><% } %>
+    </form>
+    <% if (task) { %>
+      <form method="post" action="/tasks/<%= task.id %>?_method=DELETE">
+        <button class="button danger" type="submit">Delete Task</button>
+      </form>
+    <% } %>
+  </section>
+<% } %>
+
+<section class="board" data-board>
+  <% [['todo','To Do'], ['in_progress','In Progress'], ['done','Done']].forEach(([status, label]) => { %>
+    <div class="column" data-status="<%= status %>">
+      <h2><%= label %></h2>
+      <div class="dropzone">
+        <% lists[status].forEach(item => { %>
+          <article class="task-card" draggable="true" data-task-id="<%= item.id %>">
+            <div>
+              <strong><%= item.title %></strong>
+              <small><%= item.worker_name %> · <%= helpers.formatDate(item.due_date) %></small>
+            </div>
+            <% if (item.domain_name) { %><span class="pill"><%= item.domain_name %></span><% } %>
+            <% if (isAdmin) { %><a class="text-link" href="/tasks/<%= item.id %>/edit">Edit</a><% } %>
+          </article>
+        <% }) %>
+      </div>
+    </div>
+  <% }) %>
+</section>
+<%- include('../partials/footer') %>

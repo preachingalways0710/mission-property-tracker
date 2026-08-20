@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %> | Mission Property Tracker</title>
+    <link rel="stylesheet" href="/css/styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/dashboard">Mission Property Tracker</a>
+      <% if (currentUser) { %>
+        <nav class="nav">
+          <a href="/dashboard">Dashboard</a>
+          <a href="/tasks">Tasks</a>
+          <a href="/calendar">Calendar</a>
+          <a href="/clock">Clock</a>
+          <a href="/visits">Visits</a>
+          <a href="/competency">Competency</a>
+          <a href="/pay-ledger">Pay Ledger</a>
+          <% if (isAdmin) { %><a href="/domains">Domains</a><% } %>
+        </nav>
+        <form method="post" action="/logout">
+          <button class="button ghost" type="submit">Sign Out</button>
+        </form>
+      <% } %>
+    </header>
+    <main class="shell">
+      <% if (success && success.length) { %>
+        <div class="flash success"><%= success[0] %></div>
+      <% } %>
+      <% if (error && error.length) { %>
+        <div class="flash error"><%= error[0] %></div>
+      <% } %>

@@ -1,0 +1,26 @@
+<%- include('../partials/header') %>
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Admin</p>
+    <h1>Task Domains</h1>
+  </div>
+</div>
+
+<section class="toolbar-form">
+  <form class="form inline-form" method="post" action="/domains">
+    <label>Name <input name="name" required></label>
+    <button class="button primary" type="submit">Add Domain</button>
+  </form>
+</section>
+
+<section class="list">
+  <% domains.forEach(domain => { %>
+    <div class="row">
+      <span><strong><%= domain.name %></strong></span>
+      <form method="post" action="/domains/<%= domain.id %>/toggle?_method=PATCH">
+        <button class="button ghost" type="submit"><%= domain.is_active ? 'Deactivate' : 'Activate' %></button>
+      </form>
+    </div>
+  <% }) %>
+</section>
+<%- include('../partials/footer') %>
