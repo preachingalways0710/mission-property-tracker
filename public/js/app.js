@@ -30,6 +30,18 @@ if (window.Sortable) {
   });
 }
 
+document.querySelectorAll('.task-card').forEach((card) => {
+  card.addEventListener('click', (event) => {
+    if (event.target.closest('a, button:not(.disclosure)')) return;
+    const isExpanded = card.classList.toggle('expanded');
+    const disclosure = card.querySelector('.disclosure');
+    if (disclosure) {
+      disclosure.setAttribute('aria-expanded', String(isExpanded));
+      disclosure.setAttribute('aria-label', isExpanded ? 'Hide task details' : 'Show task details');
+    }
+  });
+});
+
 const calendar = document.querySelector('[data-calendar]');
 if (calendar && calendar.dataset.admin === 'true' && window.Sortable) {
   calendar.querySelectorAll('.day').forEach((day) => {

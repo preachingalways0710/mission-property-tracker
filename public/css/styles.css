@@ -334,11 +334,10 @@ small,
 
 .dropzone {
   display: grid;
-  gap: 10px;
+  gap: 6px;
   min-height: 220px;
 }
 
-.task-card,
 .calendar-task,
 .visit-card {
   display: grid;
@@ -349,7 +348,71 @@ small,
 .task-card {
   border-left: 5px solid #aab6b1;
   cursor: grab;
+  display: grid;
+  gap: 0;
+  padding: 0;
   touch-action: manipulation;
+}
+
+.task-summary {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 22px minmax(0, 1fr) auto auto;
+  min-height: 42px;
+  padding: 7px 8px;
+}
+
+.task-summary strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-summary small {
+  white-space: nowrap;
+}
+
+.disclosure {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  color: var(--muted);
+  display: inline-flex;
+  height: 22px;
+  padding: 0;
+  width: 22px;
+}
+
+.disclosure::before {
+  content: "›";
+  display: block;
+  font-size: 1.4rem;
+  line-height: 1;
+  transform: rotate(0deg);
+  transition: transform 120ms ease;
+}
+
+.task-card.expanded .disclosure::before {
+  transform: rotate(90deg);
+}
+
+.task-details {
+  border-top: 1px solid var(--line);
+  display: none;
+  gap: 8px;
+  padding: 10px 10px 12px 30px;
+}
+
+.task-card.expanded .task-details {
+  display: grid;
+}
+
+.task-details p {
+  color: var(--muted);
+  font-size: 0.92rem;
+  margin: 0;
 }
 
 .task-card.priority-high {
@@ -500,6 +563,14 @@ th {
   .grid-form,
   .inline-form {
     grid-template-columns: 1fr;
+  }
+
+  .task-summary {
+    grid-template-columns: 22px minmax(0, 1fr) auto;
+  }
+
+  .task-summary small {
+    display: none;
   }
 
   .calendar {

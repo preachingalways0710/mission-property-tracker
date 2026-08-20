@@ -5,15 +5,20 @@
       <div class="dropzone">
         <% lists[status].forEach(item => { %>
           <article class="task-card priority-<%= item.priority || 'normal' %>" draggable="true" data-task-id="<%= item.id %>">
-            <div>
+            <div class="task-summary">
+              <button class="disclosure" type="button" aria-label="Show task details" aria-expanded="false"></button>
               <strong><%= item.title %></strong>
-              <small><%= item.worker_name %> · <%= helpers.formatDate(item.due_date) %></small>
-            </div>
-            <div class="card-meta">
+              <small><%= helpers.formatDate(item.due_date) %></small>
               <span class="pill priority <%= item.priority || 'normal' %>"><%= item.priority || 'normal' %></span>
-              <% if (item.domain_name) { %><span class="pill"><%= item.domain_name %></span><% } %>
             </div>
-            <% if (isAdmin) { %><a class="text-link" href="/tasks/<%= item.id %>/edit">Edit</a><% } %>
+            <div class="task-details">
+              <div class="card-meta">
+                <span><%= item.worker_name %></span>
+                <% if (item.domain_name) { %><span class="pill"><%= item.domain_name %></span><% } %>
+              </div>
+              <% if (item.description) { %><p><%= item.description %></p><% } %>
+              <% if (isAdmin) { %><a class="text-link" href="/tasks/<%= item.id %>/edit">Edit task</a><% } %>
+            </div>
           </article>
         <% }) %>
       </div>
