@@ -347,8 +347,43 @@ small,
 }
 
 .task-card {
+  border-left: 5px solid #aab6b1;
   cursor: grab;
   touch-action: manipulation;
+}
+
+.task-card.priority-high {
+  border-left-color: var(--danger);
+}
+
+.task-card.priority-normal {
+  border-left-color: var(--sky);
+}
+
+.task-card.priority-low {
+  border-left-color: var(--accent);
+}
+
+.card-meta {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pill.priority.high {
+  background: #fde6e4;
+  color: var(--danger);
+}
+
+.pill.priority.normal {
+  background: #e4f1f8;
+  color: var(--sky);
+}
+
+.pill.priority.low {
+  background: #dff4e9;
+  color: #075a3a;
 }
 
 .drag-chosen {

@@ -107,6 +107,12 @@ const statements = [
   )`
 ];
 
+const alterStatements = [
+  `ALTER TABLE tasks
+   ADD COLUMN priority ENUM('low', 'normal', 'high') NOT NULL DEFAULT 'normal'
+   AFTER status`
+];
+
 async function migrate() {
   const connection = await mysql.createConnection(baseConfig);
   try {
@@ -121,6 +127,15 @@ async function migrate() {
     await connection.query(`USE \`${database}\``);
     for (const statement of statements) {
       await connection.query(statement);
+    }
+    for (const statement of alterStatements) {
+      try {
+        await connection.query(statement);
+      } catch (error) {
+        if (error.code !== 'ER_DUP_FIELDNAME') {
+          throw error;
+        }
+      }
     }
     console.log(`Migrated ${database}`);
   } finally {

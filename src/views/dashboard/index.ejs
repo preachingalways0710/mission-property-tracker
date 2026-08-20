@@ -2,10 +2,16 @@
 <div class="page-heading">
   <div>
     <p class="eyebrow"><%= currentUser.role %></p>
-    <h1>Dashboard</h1>
+    <h1>Work Board</h1>
   </div>
-  <a class="button primary" href="<%= isWorker ? '/visits/new' : '/tasks' %>"><%= isWorker ? 'Log Visit' : 'Manage Tasks' %></a>
+  <div class="actions">
+    <% if (isAdmin) { %><a class="button primary" href="/tasks">New Task</a><% } %>
+    <% if (isWorker) { %><a class="button primary" href="/visits/new">Log Visit</a><% } %>
+    <a class="button" href="/calendar">Calendar</a>
+  </div>
 </div>
+
+<%- include('../partials/task-board', { lists, helpers }) %>
 
 <section class="metric-grid">
   <article class="metric"><span>Open Clock</span><strong><%= openClock.length %></strong></article>
@@ -14,18 +20,6 @@
 </section>
 
 <section class="split">
-  <article>
-    <h2>Upcoming Tasks</h2>
-    <div class="list">
-      <% tasks.forEach(task => { %>
-        <a class="row" href="/tasks/<%= task.id %>/edit">
-          <span><strong><%= task.title %></strong><small><%= task.worker_name %> · <%= helpers.formatDate(task.due_date) %></small></span>
-          <span class="pill"><%= task.status.replace('_', ' ') %></span>
-        </a>
-      <% }) %>
-      <% if (!tasks.length) { %><p class="muted">No tasks yet.</p><% } %>
-    </div>
-  </article>
   <article>
     <h2>Recent Visits</h2>
     <div class="list">

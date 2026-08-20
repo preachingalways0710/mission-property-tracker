@@ -21,8 +21,7 @@ router.get('/', async (req, res) => {
        LEFT JOIN task_domains d ON d.id = t.domain_id
        JOIN users u ON u.id = t.assigned_to
        ${userFilter}
-       ORDER BY COALESCE(t.due_date, '9999-12-31'), t.position, t.created_at
-       LIMIT 8`,
+       ORDER BY FIELD(t.status, 'todo', 'in_progress', 'done'), FIELD(t.priority, 'high', 'normal', 'low'), t.position, COALESCE(t.due_date, '9999-12-31'), t.created_at`,
       params
     ),
     query(
@@ -69,7 +68,11 @@ router.get('/', async (req, res) => {
 
   res.render('dashboard/index', {
     title: 'Dashboard',
-    tasks,
+    lists: {
+      todo: tasks.filter((task) => task.status === 'todo'),
+      in_progress: tasks.filter((task) => task.status === 'in_progress'),
+      done: tasks.filter((task) => task.status === 'done')
+    },
     visits,
     openClock,
     ledger,

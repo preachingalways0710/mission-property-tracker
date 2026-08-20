@@ -14,7 +14,7 @@ async function taskLists(user) {
      LEFT JOIN task_domains d ON d.id = t.domain_id
      JOIN users u ON u.id = t.assigned_to
      ${where}
-     ORDER BY FIELD(t.status, 'todo', 'in_progress', 'done'), t.position, COALESCE(t.due_date, '9999-12-31'), t.created_at`,
+     ORDER BY FIELD(t.status, 'todo', 'in_progress', 'done'), FIELD(t.priority, 'high', 'normal', 'low'), t.position, COALESCE(t.due_date, '9999-12-31'), t.created_at`,
     { userId: user.id }
   );
   return {
@@ -61,10 +61,10 @@ router.get('/:id/edit', async (req, res) => {
 
 router.post('/', async (req, res) => {
   if (req.session.user.role !== 'admin') return res.status(403).redirect('/tasks');
-  const { title, description, domain_id, assigned_to, due_date, status } = req.body;
+  const { title, description, domain_id, assigned_to, due_date, status, priority } = req.body;
   await query(
-    `INSERT INTO tasks (title, description, domain_id, assigned_to, created_by, due_date, status)
-     VALUES (:title, :description, :domainId, :assignedTo, :createdBy, :dueDate, :status)`,
+    `INSERT INTO tasks (title, description, domain_id, assigned_to, created_by, due_date, status, priority)
+     VALUES (:title, :description, :domainId, :assignedTo, :createdBy, :dueDate, :status, :priority)`,
     {
       title,
       description: description || null,
@@ -72,7 +72,8 @@ router.post('/', async (req, res) => {
       assignedTo: assigned_to,
       createdBy: req.session.user.id,
       dueDate: due_date || null,
-      status: status || 'todo'
+      status: status || 'todo',
+      priority: priority || 'normal'
     }
   );
   req.flash('success', 'Task created.');
@@ -81,11 +82,11 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   if (req.session.user.role !== 'admin') return res.status(403).redirect('/tasks');
-  const { title, description, domain_id, assigned_to, due_date, status } = req.body;
+  const { title, description, domain_id, assigned_to, due_date, status, priority } = req.body;
   await query(
     `UPDATE tasks
      SET title = :title, description = :description, domain_id = :domainId, assigned_to = :assignedTo,
-         due_date = :dueDate, status = :status
+         due_date = :dueDate, status = :status, priority = :priority
      WHERE id = :id`,
     {
       id: req.params.id,
@@ -94,7 +95,8 @@ router.put('/:id', async (req, res) => {
       domainId: domain_id || null,
       assignedTo: assigned_to,
       dueDate: due_date || null,
-      status
+      status,
+      priority: priority || 'normal'
     }
   );
   req.flash('success', 'Task updated.');
