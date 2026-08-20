@@ -12,6 +12,8 @@ const path = require('path');
 const { query, sessionOptions, testConnection } = require('./src/db');
 const { cleanEnvValue } = require('./src/config/db-config');
 const { attachLocals } = require('./src/middleware/auth');
+const { migrate } = require('./db/migrate');
+const { seed } = require('./db/seed');
 
 const authRoutes = require('./src/routes/auth');
 const dashboardRoutes = require('./src/routes/dashboard');
@@ -124,11 +126,14 @@ app.use((err, req, res, next) => {
 
 app.listen(port, () => {
   console.log(`Mission Property Tracker running at http://localhost:${port}`);
-  testConnection()
+  Promise.resolve()
+    .then(() => testConnection())
+    .then(() => migrate())
+    .then(() => seed())
     .then(() => {
-      console.log('Database connection verified.');
+      console.log('Database setup verified.');
     })
     .catch((error) => {
-      console.error('Database connection failed:', error.message);
+      console.error('Database setup failed:', error.message);
     });
-  });
+});
