@@ -47,7 +47,9 @@ app.get('/readyz', async (req, res) => {
       db: {
         host: process.env.DB_HOST || 'missing',
         name: process.env.DB_NAME || 'missing',
-        user: process.env.DB_USER || 'missing'
+        user: process.env.DB_USER || 'missing',
+        passwordSet: Boolean(process.env.DB_PASSWORD),
+        passwordLength: process.env.DB_PASSWORD ? process.env.DB_PASSWORD.length : 0
       },
       tables: tables.map((table) => table.tableName)
     });
@@ -57,7 +59,9 @@ app.get('/readyz', async (req, res) => {
       db: {
         host: process.env.DB_HOST || 'missing',
         name: process.env.DB_NAME || 'missing',
-        user: process.env.DB_USER || 'missing'
+        user: process.env.DB_USER || 'missing',
+        passwordSet: Boolean(process.env.DB_PASSWORD),
+        passwordLength: process.env.DB_PASSWORD ? process.env.DB_PASSWORD.length : 0
       },
       error: {
         code: error.code || 'UNKNOWN',
