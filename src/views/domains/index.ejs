@@ -17,9 +17,12 @@
   <% domains.forEach(domain => { %>
     <div class="row">
       <span><strong><%= domain.name %></strong></span>
-      <form method="post" action="/domains/<%= domain.id %>/toggle?_method=PATCH">
-        <button class="button ghost" type="submit"><%= domain.is_active ? 'Deactivate' : 'Activate' %></button>
-      </form>
+      <div class="row-actions">
+        <span class="pill <%= domain.is_active ? 'approved' : 'pending' %>"><%= domain.is_active ? 'active' : 'hidden' %></span>
+        <form method="post" action="/domains/<%= domain.id %>/toggle?_method=PATCH">
+          <button class="button ghost" type="submit"><%= domain.is_active ? 'Hide' : 'Restore' %></button>
+        </form>
+      </div>
     </div>
   <% }) %>
 </section>

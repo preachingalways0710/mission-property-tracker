@@ -80,6 +80,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/vendor/sortablejs', express.static(path.join(__dirname, 'node_modules/sortablejs')));
 app.use(
   session({
     key: 'mission_property_tracker.sid',

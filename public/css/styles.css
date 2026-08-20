@@ -283,6 +283,12 @@ small,
   text-decoration: none;
 }
 
+.row-actions {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
 .row span:first-child,
 .score-list span {
   display: grid;
@@ -342,6 +348,15 @@ small,
 
 .task-card {
   cursor: grab;
+  touch-action: manipulation;
+}
+
+.drag-chosen {
+  box-shadow: 0 12px 28px rgb(29 37 39 / 16%);
+}
+
+.drag-ghost {
+  opacity: 0.45;
 }
 
 .calendar {
@@ -384,7 +399,9 @@ small,
 
 .calendar-task {
   border-left: 4px solid var(--sky);
+  cursor: grab;
   margin-top: 8px;
+  touch-action: manipulation;
 }
 
 .calendar-task.done {

@@ -7,46 +7,49 @@ async function patchJson(url, body) {
   if (!response.ok) throw new Error('Update failed');
 }
 
-document.querySelectorAll('[data-board] .task-card').forEach((card) => {
-  card.addEventListener('dragstart', (event) => {
-    event.dataTransfer.setData('text/plain', card.dataset.taskId);
-  });
-});
-
-document.querySelectorAll('[data-board] .column').forEach((column) => {
-  column.addEventListener('dragover', (event) => event.preventDefault());
-  column.addEventListener('drop', async (event) => {
-    event.preventDefault();
-    const taskId = event.dataTransfer.getData('text/plain');
-    const card = document.querySelector(`[data-task-id="${taskId}"]`);
-    try {
-      await patchJson(`/tasks/${taskId}/status`, { status: column.dataset.status });
-      column.querySelector('.dropzone').appendChild(card);
-    } catch (error) {
-      alert('Could not update that task.');
-    }
-  });
-});
-
-const calendar = document.querySelector('[data-calendar]');
-if (calendar && calendar.dataset.admin === 'true') {
-  calendar.querySelectorAll('.calendar-task').forEach((task) => {
-    task.addEventListener('dragstart', (event) => {
-      event.dataTransfer.setData('text/plain', task.dataset.taskId);
+if (window.Sortable) {
+  document.querySelectorAll('[data-board] .dropzone').forEach((dropzone) => {
+    Sortable.create(dropzone, {
+      group: 'tasks',
+      animation: 160,
+      ghostClass: 'drag-ghost',
+      chosenClass: 'drag-chosen',
+      delayOnTouchOnly: true,
+      delay: 120,
+      onEnd: async (event) => {
+        const taskId = event.item.dataset.taskId;
+        const status = event.to.closest('[data-status]').dataset.status;
+        try {
+          await patchJson(`/tasks/${taskId}/status`, { status });
+        } catch (error) {
+          alert('Could not update that task.');
+          event.from.insertBefore(event.item, event.from.children[event.oldIndex] || null);
+        }
+      }
     });
   });
+}
 
+const calendar = document.querySelector('[data-calendar]');
+if (calendar && calendar.dataset.admin === 'true' && window.Sortable) {
   calendar.querySelectorAll('.day').forEach((day) => {
-    day.addEventListener('dragover', (event) => event.preventDefault());
-    day.addEventListener('drop', async (event) => {
-      event.preventDefault();
-      const taskId = event.dataTransfer.getData('text/plain');
-      const task = calendar.querySelector(`.calendar-task[data-task-id="${taskId}"]`);
-      try {
-        await patchJson(`/tasks/${taskId}/due-date`, { due_date: day.dataset.date });
-        day.appendChild(task);
-      } catch (error) {
-        alert('Could not reschedule that task.');
+    Sortable.create(day, {
+      group: 'calendar-tasks',
+      draggable: '.calendar-task',
+      animation: 160,
+      ghostClass: 'drag-ghost',
+      chosenClass: 'drag-chosen',
+      delayOnTouchOnly: true,
+      delay: 120,
+      onEnd: async (event) => {
+        const taskId = event.item.dataset.taskId;
+        const dueDate = event.to.dataset.date;
+        try {
+          await patchJson(`/tasks/${taskId}/due-date`, { due_date: dueDate });
+        } catch (error) {
+          alert('Could not reschedule that task.');
+          event.from.insertBefore(event.item, event.from.children[event.oldIndex] || null);
+        }
       }
     });
   });
