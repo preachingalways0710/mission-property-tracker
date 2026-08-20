@@ -10,6 +10,7 @@ const methodOverride = require('method-override');
 const path = require('path');
 
 const { query, sessionOptions, testConnection } = require('./src/db');
+const { cleanEnvValue } = require('./src/config/db-config');
 const { attachLocals } = require('./src/middleware/auth');
 
 const authRoutes = require('./src/routes/auth');
@@ -34,6 +35,7 @@ app.get('/healthz', (req, res) => {
 });
 
 app.get('/readyz', async (req, res) => {
+  const cleanedPassword = cleanEnvValue(process.env.DB_PASSWORD);
   try {
     const tables = await query(`
       SELECT TABLE_NAME AS tableName
@@ -49,7 +51,7 @@ app.get('/readyz', async (req, res) => {
         name: process.env.DB_NAME || 'missing',
         user: process.env.DB_USER || 'missing',
         passwordSet: Boolean(process.env.DB_PASSWORD),
-        passwordLength: process.env.DB_PASSWORD ? process.env.DB_PASSWORD.length : 0
+        passwordLength: cleanedPassword.length
       },
       tables: tables.map((table) => table.tableName)
     });
@@ -61,7 +63,7 @@ app.get('/readyz', async (req, res) => {
         name: process.env.DB_NAME || 'missing',
         user: process.env.DB_USER || 'missing',
         passwordSet: Boolean(process.env.DB_PASSWORD),
-        passwordLength: process.env.DB_PASSWORD ? process.env.DB_PASSWORD.length : 0
+        passwordLength: cleanedPassword.length
       },
       error: {
         code: error.code || 'UNKNOWN',
