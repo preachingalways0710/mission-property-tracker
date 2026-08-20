@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('express-async-errors');
 
 const express = require('express');
 const session = require('express-session');
@@ -8,7 +9,7 @@ const helmet = require('helmet');
 const methodOverride = require('method-override');
 const path = require('path');
 
-const { sessionOptions, testConnection } = require('./src/db');
+const { query, sessionOptions, testConnection } = require('./src/db');
 const { attachLocals } = require('./src/middleware/auth');
 
 const authRoutes = require('./src/routes/auth');
@@ -24,6 +25,7 @@ const domainRoutes = require('./src/routes/domains');
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.set('trust proxy', 1);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src/views'));
 
@@ -66,6 +68,20 @@ app.use('/domains', domainRoutes);
 
 app.get('/healthz', (req, res) => {
   res.json({ ok: true });
+});
+
+app.get('/readyz', async (req, res) => {
+  const tables = await query(`
+    SELECT TABLE_NAME AS tableName
+    FROM information_schema.TABLES
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME IN ('users', 'task_domains', 'tasks', 'clock_events', 'visit_logs', 'pay_ledger')
+    ORDER BY TABLE_NAME
+  `);
+  res.json({
+    ok: tables.length === 6,
+    tables: tables.map((table) => table.tableName)
+  });
 });
 
 app.use((req, res) => {
